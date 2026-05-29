@@ -5,17 +5,19 @@
 [![Python](https://img.shields.io/badge/Python-3.10+-blue)](https://python.org)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 [![Status](https://img.shields.io/badge/status-active-brightgreen)]()
+[![Version](https://img.shields.io/badge/version-v1.1.1-blue)]()
 [![pi-agent](https://img.shields.io/badge/runs%20on-pi--agent-purple)]()
 
 ---
 
 ## ✨ 功能
 
-| 模块 | 能力 |
-|------|------|
-| 📚 **Core** | 上传 PDF → 自动分块嵌入 → RAG 问答，所有回答附带 `(文件名.pdf, page X)` 引用 |
-| 🎙️ **Podcast** | Alex & Sam 双人对话播客，edge-tts 生成音频，支持 short/medium/long 三档时长 |
-| 🧠 **Studio** | 一键生成：思维导图 (Mermaid)、闪卡 (Q&A)、学术报告、时间线 |
+| 模块 | 能力 | 版本 |
+|------|------|------|
+| 🔍 **Discover** | Fast Research (30s) / Deep Research (报告 + 30 源)，用户确认后导入 | 🆕 v1.1.1 |
+| 📚 **Core** | 上传 PDF → 自动分块嵌入 → RAG 问答，所有回答附带 `(文件名.pdf, page X)` 引用 | v1.0.0 |
+| 🎙️ **Podcast** | Alex & Sam 双人对话播客，edge-tts 生成音频，支持 short/medium/long 三档时长 | v1.0.0 |
+| 🧠 **Studio** | 一键生成：思维导图 (Mermaid)、闪卡 (Q&A)、学术报告、时间线 | v1.0.0 |
 
 ---
 
@@ -45,9 +47,13 @@ Generate flashcards
 ```
 pi-notebook-skill/
 ├── notebooklm-core/SKILL.md       ← 源管理 + RAG 问答
+├── notebooklm-discover/SKILL.md   ← 🆕 Fast/Deep Research 搜索
 ├── notebooklm-podcast/SKILL.md    ← Alex/Sam 双人播客
 ├── notebooklm-studio/SKILL.md     ← 思维导图/闪卡/报告/时间线
-├── scripts/                       ← 8 个 Python 工具脚本
+├── scripts/                       ← 11 个 Python 工具脚本
+│   ├── discover_sources.py        # 🆕 Fast Research (Tavily CLI)
+│   ├── deep_research.py           # 🆕 Deep Research 多轮搜索+报告
+│   ├── download_source.py         # 🆕 下载源 → pending_imports.json
 │   ├── parse_pdf.py               # PDF 文本提取（保留页码）
 │   ├── chunk_text.py              # 450字/块 + 50字重叠
 │   ├── embed_store.py             # ChromaDB 向量存储 & 检索
@@ -66,6 +72,10 @@ pi-notebook-skill/
 ### 数据流
 
 ```
+🔍 Discover → tvly CLI → Fast Research (5-10 源) / Deep Research (30+ 源 + 报告)
+                        ↓ 用户确认
+              download_source → sources/ + pending_imports.json
+                        ↓
 PDF 上传 → parse_pdf → chunk_text → embed_store (ChromaDB)
                                           ↓
 用户提问 → embed_store.search → LLM 回答 + 引用
@@ -84,6 +94,8 @@ PDF 上传 → parse_pdf → chunk_text → embed_store (ChromaDB)
 | **sentence-transformers** | `all-MiniLM-L6-v2` 模型，384 维嵌入 |
 | **pdfplumber** | PDF 文本提取（支持页码保留） |
 | **edge-tts** | 微软 Edge TTS，生成自然语音 |
+| **Tavily CLI** | 🆕 Web 搜索（Fast + Deep Research），替代码内 API Key |
+| **BeautifulSoup4** | HTML → TXT 文本提取（Discover 导入 workaround） |
 | **ffmpeg** | 合并多段播客音频（可选） |
 
 ---
@@ -91,6 +103,11 @@ PDF 上传 → parse_pdf → chunk_text → embed_store (ChromaDB)
 ## 📋 常见命令
 
 ```
+# Discover 🆕
+I want to learn about <topic>
+Deep research <topic>
+Import 1, 3, 5
+
 # Notebook
 Create a notebook called "XXX"
 Switch to notebook "XXX"
@@ -115,11 +132,13 @@ Generate timeline
 
 ## ⚠️ 已知限制
 
-| 问题 | Workaround |
-|------|------------|
-| ffmpeg 未安装（无法合并播客） | 分段 MP3 逐个播放，或手动 `winget install ffmpeg` |
-| 企业 SSL 拦截 HuggingFace | 模型已预下载到本地 cache，无需联网 |
-| 大量页 PDF 较慢 | 拆分为小文件上传 |
+| 问题 | Workaround | v1.2.0 计划 |
+|------|------------|------------|
+| ffmpeg 未安装 | 分段 MP3 逐个播放，或手动 `winget install ffmpeg` | 内置分段播放器 |
+| 企业 SSL 拦截 HuggingFace | 模型已预下载到本地 cache，无需联网 | — |
+| 大量页 PDF 较慢 | 拆分为小文件上传 | 流式分块 |
+| HTML 源需手动转换 🆕 | BS4 提取文本 → 存 `.txt` → 导入 | 原生 HTML parsing 到 Core 管道 |
+| 单词语境过滤弱 🆕 | 多词查询效果良好；全滤掉时 fallback 保底 | 语义相关性评分 |
 
 详见 [USER_GUIDE.md](USER_GUIDE.md)
 

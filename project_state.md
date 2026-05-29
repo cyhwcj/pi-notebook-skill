@@ -122,6 +122,12 @@
 | 1 | 低相关性过滤 | `discover_sources.py` | 新增 `filter_by_relevance()` — 关键词无匹配则过滤，全滤掉时 fallback |
 | 2 | HTML 解析 Workaround | `SKILL.md` | 新增 HTML → TXT (BeautifulSoup) 转换步骤，桥接 v1.0 管道 |
 
+### v1.1.1 Known Issues
+| 问题 | 说明 | 计划 |
+|------|------|------|
+| 低相关性过滤 | 纯 nonsense 单词语境下无法有效过滤（安全 fallback 返回原结果），多词查询效果良好 | 持续优化中 |
+| HTML 解析 | v1.1.1 用 BS4→TXT workaround 桥接，非原生管线 | v1.2.0 将加入原生 HTML parsing 到 Core 管道 |
+
 ---
 
 ## 未完成
