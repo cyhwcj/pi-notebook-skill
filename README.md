@@ -5,7 +5,7 @@
 [![Python](https://img.shields.io/badge/Python-3.10+-blue)](https://python.org)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 [![Status](https://img.shields.io/badge/status-active-brightgreen)]()
-[![Version](https://img.shields.io/badge/version-v1.1.1-blue)]()
+[![Version](https://img.shields.io/badge/version-v1.2.0-blue)]()
 [![pi-agent](https://img.shields.io/badge/runs%20on-pi--agent-purple)]()
 
 ---
@@ -14,7 +14,7 @@
 
 | 模块 | 能力 | 版本 |
 |------|------|------|
-| 🔍 **Discover** | Fast Research (30s) / Deep Research (报告 + 30 源)，用户确认后导入 | 🆕 v1.1.1 |
+| 🔍 **Discover** | Fast / Deep Research + **KB 双向联动**：导入源自动同步到知识库 inbox，wiki 一键回写 Notebook | 🆕 v1.2.0 |
 | 📚 **Core** | 上传 PDF → 自动分块嵌入 → RAG 问答，所有回答附带 `(文件名.pdf, page X)` 引用 | v1.0.0 |
 | 🎙️ **Podcast** | Alex & Sam 双人对话播客，edge-tts 生成音频，支持 short/medium/long 三档时长 | v1.0.0 |
 | 🧠 **Studio** | 一键生成：思维导图 (Mermaid)、闪卡 (Q&A)、学术报告、时间线 | v1.0.0 |
@@ -72,14 +72,16 @@ pi-notebook-skill/
 ### 数据流
 
 ```
-🔍 Discover → tvly CLI → Fast Research (5-10 源) / Deep Research (30+ 源 + 报告)
-                        ↓ 用户确认
-              download_source → sources/ + pending_imports.json
-                        ↓
-PDF 上传 → parse_pdf → chunk_text → embed_store (ChromaDB)
-                                          ↓
-用户提问 → embed_store.search → LLM 回答 + 引用
-                                          ↓
+🔍 Discover → tvly CLI → Fast Research / Deep Research
+              ↓ 用户确认
+  download_source → sources/ + pending_imports.json
+              ↓                       ↓
+    NotebookLM sources/      KB inbox/ + .meta.json 🆕
+              ↓                       ↓
+           embed_store          karpathy-kb wiki
+              ↓                       ↓
+         RAG 问答 ←──────── sync_wiki_to_notebook 🆕
+              ↓
 源材料 → studio_generator → LLM → 思维导图/闪卡/报告
        → generate_podcast_script → parse_dialogue → edge-tts → MP3
 ```
@@ -95,6 +97,7 @@ PDF 上传 → parse_pdf → chunk_text → embed_store (ChromaDB)
 | **pdfplumber** | PDF 文本提取（支持页码保留） |
 | **edge-tts** | 微软 Edge TTS，生成自然语音 |
 | **Tavily CLI** | 🆕 Web 搜索（Fast + Deep Research），替代码内 API Key |
+| **karpathy-kb** | 🆕 v1.2.0 知识库联动：inbox 同步 + wiki 回写 |
 | **BeautifulSoup4** | HTML → TXT 文本提取（Discover 导入 workaround） |
 | **ffmpeg** | 合并多段播客音频（可选） |
 
@@ -107,6 +110,8 @@ PDF 上传 → parse_pdf → chunk_text → embed_store (ChromaDB)
 I want to learn about <topic>
 Deep research <topic>
 Import 1, 3, 5
+Sync wiki to notebook       # 🆕 v1.2.0
+Ingest inbox                # 🆕 v1.2.0
 
 # Notebook
 Create a notebook called "XXX"
@@ -139,6 +144,7 @@ Generate timeline
 | 大量页 PDF 较慢 | 拆分为小文件上传 | 流式分块 |
 | HTML 源需手动转换 🆕 | BS4 提取文本 → 存 `.txt` → 导入 | 原生 HTML parsing 到 Core 管道 |
 | 单词语境过滤弱 🆕 | 多词查询效果良好；全滤掉时 fallback 保底 | 语义相关性评分 |
+| KB 路径硬编码 🆕 | 当前 KB 路径为固定 Windows 绝对路径 | 可配置 KB_DIR 环境变量 |
 
 详见 [USER_GUIDE.md](USER_GUIDE.md)
 
