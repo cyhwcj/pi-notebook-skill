@@ -1,7 +1,7 @@
 # NotebookLM Agent - 项目进度报告
 
-> **更新日期**: 2026-05-28 23:30
-> **状态**: 基础设施完成，待 ffmpeg + 端到端测试
+> **更新日期**: 2026-05-29
+> **状态**: ✅ 部署完成，端到端测试通过
 > **截止日期**: 2026-05-29
 
 ---
@@ -52,23 +52,17 @@ pip install chromadb sentence-transformers pdfplumber beautifulsoup4 requests
 
 ---
 
-## 二、未完成
+## 二、已完成
 
-### 1. ffmpeg 安装 ⚠️
-**状态**: winget 下载卡在 240MB（网速问题）
-**手动安装命令**:
-```powershell
-winget install ffmpeg --accept-source-agreements --accept-package-agreements
-```
-**验证**: `ffmpeg -version` 返回版本号
+### 1. ffmpeg 安装 ✅
+已在 pi-agent 完成部署验证
 
-### 2. 端到端测试 ⏳
-待 ffmpeg 安装完成后执行：
-1. 在 pi-web 中加载 notebooklm-core、notebooklm-podcast、notebooklm-studio
-2. 创建测试 Notebook
-3. 上传 PDF → 解析 → RAG 问答 → 验证引用格式 `(filename.pdf, page 3)`
-4. 生成播客 → 验证 MP3 可播放
-5. 生成思维导图 → 验证 Mermaid 代码
+### 2. 端到端测试 ✅
+1. 在 pi-web 中加载 notebooklm-core、notebooklm-podcast、notebooklm-studio ✅
+2. 创建测试 Notebook ✅
+3. 上传 PDF → 解析 → RAG 问答 → 验证引用格式 `(filename.pdf, page 3)` ✅
+4. 生成播客 → 验证 MP3 可播放 ✅
+5. 生成思维导图 → 验证 Mermaid 代码 ✅
 
 ---
 

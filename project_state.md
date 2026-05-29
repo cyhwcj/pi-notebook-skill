@@ -1,7 +1,7 @@
 # NotebookLM Agent - Project State
 
-> **Last Updated**: 2026-05-28 23:55 (pi-agent E2E test)
-> **Status**: E2E testing completed, ffmpeg pending
+> **Last Updated**: 2026-05-29 13:00 (pi-agent v1.1.1 Discover E2E test)
+> **Status**: v1.0.0 ✅ | v1.1.1 Discover ✅ (3 fixes applied)
 > **Tester**: pi-agent
 
 ---
@@ -78,6 +78,43 @@
 | 无关问题被拒绝 | ✅ 天气查询返回 0 结果 |
 | 播客 MP3 可播放（或分段音频可播放） | ✅ 10 段 MP3 可用 |
 | 思维导图 Mermaid 语法正确 | ✅ prompt 格式正确 |
+
+---
+
+## v1.1.1 Discover Sources — E2E Test Results
+
+### Task 1: 脚本可执行验证 ✅
+| Test | Status | 详情 |
+|------|--------|------|
+| discover_sources.py | ✅ | Tavily CLI 搜索，5 条结果含 [WEB]/[PDF]/[VIDEO] 标签 + 可信度星级 |
+| deep_research.py | ✅ | 8 轮子查询 → 29 个源，报告含 Overview + 5 核心发现 + 来源统计 + Top 10 |
+| download_source.py | ✅ | 2 文件下载成功 (94KB + 355KB)，pending_imports.json 正确写入 |
+
+### Task 2: Skill 文件 ✅
+| Check | Status |
+|-------|--------|
+| SKILL.md 存在于 `~/.pi/agent/skills/notebooklm-discover/` | ✅ |
+| YAML frontmatter (name/description/version) | ✅ |
+| 与备份 `~/pi-notebook-skill/notebooklm-discover/SKILL.md` 一致 | ✅ |
+
+### Task 4: 端到端测试
+| Test | Status | 详情 |
+|------|--------|------|
+| **Test A: Fast Research** | ✅ | 30s 内返回 5 条编号结果，含标签、可信度、摘要 |
+| **Test B: Import Sources** | ✅ | "Import 1, 4" → 2 文件下载、pending_imports.json 更新、sources/ 文件存在 |
+| **Test C: Deep Research** | ✅ | 2-5min 内返回完整报告（Overview + 5 Findings + 统计 + Top 10） |
+| **Test D: Grounded Chat** | ⚠️ | HTML 文件已下载(94KB+355KB)，但 v1.0.0 管道仅支持 PDF/TXT，HTML 需额外解析 |
+| **Test E1: 无意义搜索** | ⚠️ | Tavily 返回了 3 条字面匹配结果（Spotify/SoundCloud/TikTok），Skill 层需过滤低相关性 |
+| **Test E2: 无效索引** | ✅ | "Import 999" → `Not found in discovery results` |
+
+### v1.1.1 修复项
+| 问题 | 修复 |
+|------|------|
+| **DuckDuckGo 被墙** | discover_sources.py 改用 `tvly` CLI（已配置 API Key） |
+| **Tavily SDK 缺 API Key** | 同上，CLI 方式无需代码内配置 Key |
+| **deep_research.py 用 DuckDuckGo 超时** | 改为导入 `search_tavily` 替代 `search_duckduckgo` |
+| **GBK 编码错误** (`\xa0` 非法字符) | 3 个脚本 `__main__` 添加 `sys.stdout = io.TextIOWrapper(..., encoding='utf-8')` |
+| **stderr 中文乱码** | deep_research.py stderr 打印仍为 GBK，但实际查询和 JSON 输出正确（非阻塞） |
 
 ---
 
