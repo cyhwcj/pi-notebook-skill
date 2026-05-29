@@ -1,7 +1,7 @@
 # NotebookLM Agent - Project State
 
-> **Last Updated**: 2026-05-29 13:00 (pi-agent v1.1.1 Discover E2E test)
-> **Status**: v1.0.0 ✅ | v1.1.1 Discover ✅ (3 fixes applied)
+> **Last Updated**: 2026-05-29 13:10 (v1.1.1 hotfix: relevance filter + HTML workaround)
+> **Status**: v1.0.0 ✅ | v1.1.1 ✅ | v1.1.1 hotfix ✅
 > **Tester**: pi-agent
 
 ---
@@ -115,6 +115,12 @@
 | **deep_research.py 用 DuckDuckGo 超时** | 改为导入 `search_tavily` 替代 `search_duckduckgo` |
 | **GBK 编码错误** (`\xa0` 非法字符) | 3 个脚本 `__main__` 添加 `sys.stdout = io.TextIOWrapper(..., encoding='utf-8')` |
 | **stderr 中文乱码** | deep_research.py stderr 打印仍为 GBK，但实际查询和 JSON 输出正确（非阻塞） |
+
+### v1.1.1 体验优化修复 (hotfix)
+| # | 修复 | 文件 | 结果 |
+|---|------|------|------|
+| 1 | 低相关性过滤 | `discover_sources.py` | 新增 `filter_by_relevance()` — 关键词无匹配则过滤，全滤掉时 fallback |
+| 2 | HTML 解析 Workaround | `SKILL.md` | 新增 HTML → TXT (BeautifulSoup) 转换步骤，桥接 v1.0 管道 |
 
 ---
 
