@@ -117,6 +117,25 @@ def search_duckduckgo(query, max_results=10):
     except Exception as e:
         return [{"error": str(e), "fallback": "Search failed"}]
 
+def filter_by_relevance(results, query):
+    """Filter out results that don't contain any query keywords."""
+    if not query or not results:
+        return results
+    
+    query_words = set(w.lower() for w in query.split() if len(w) > 2)
+    if not query_words:
+        return results
+    
+    filtered = []
+    for r in results:
+        text = (r.get("title", "") + " " + r.get("summary", "")).lower()
+        # Match if ANY query word appears in title or summary
+        if any(w in text for w in query_words):
+            filtered.append(r)
+    
+    # If all filtered out, return original (don't break legitimate searches)
+    return filtered if filtered else results
+
 def format_results(results, topic):
     """Format results for user display."""
     output = {
@@ -156,5 +175,8 @@ if __name__ == "__main__":
     else:
         results = search_duckduckgo(query, max_results)
 
+    # Filter by relevance before formatting
+    results = filter_by_relevance(results, query)
+    
     formatted = format_results(results, query)
     print(json.dumps(formatted, ensure_ascii=False, indent=2))

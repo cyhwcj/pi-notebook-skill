@@ -116,6 +116,29 @@ Reply "Import X, Y, Z" to add original sources.
 | Forum/QA | ** | reddit.com, quora.com |
 | Unknown | ** | other domains |
 
+## HTML Source Workaround
+
+Discover may return webpage (HTML) sources. The v1.0 core pipeline only supports PDF/TXT parsing.
+
+When user imports an HTML source:
+1. Download the HTML file (done by download_source.py)
+2. Extract text content using BeautifulSoup:
+   ```bash
+   python -c "
+   from bs4 import BeautifulSoup
+   import sys
+   with open('source.html', 'r', encoding='utf-8') as f:
+       soup = BeautifulSoup(f, 'html.parser')
+   for tag in soup(['script', 'style', 'nav', 'footer', 'header']):
+       tag.decompose()
+   text = soup.get_text(separator='\n', strip=True)
+   with open('source.txt', 'w', encoding='utf-8') as f:
+       f.write(text)
+   "
+
+3. Save as `.txt` and call notebooklm-core `add_source` on the `.txt` file
+Future v1.2.0 will add native HTML parsing to core pipeline.
+
 ## Error Handling
 
 - Search API failure: "Search service temporarily unavailable. Please try again later."
